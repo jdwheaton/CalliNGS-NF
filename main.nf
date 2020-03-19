@@ -100,6 +100,8 @@ process '1B_prepare_genome_picard' {
 
 process '1C_prepare_star_genome_index' {
   tag "$genome.baseName"
+  label 'mem_xlarge'
+  label 'star'
 
   input:
     path genome from params.genome
@@ -158,6 +160,8 @@ process '1D_prepare_vcf_file' {
 
 process '2_rnaseq_mapping_star' {
   tag "$replicateId"
+  label 'mem_xlarge'
+  label 'star'
 
   input: 
     path genome from params.genome 
@@ -318,6 +322,7 @@ process '4_rnaseq_gatk_recalibrate' {
 process '5_rnaseq_call_variants' {
   tag "$sampleId"
   label 'mem_xlarge'
+  label 'gatk_multicore'
 
   input:
     path genome from params.genome
