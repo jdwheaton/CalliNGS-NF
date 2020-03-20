@@ -65,11 +65,18 @@ process '1A_prepare_genome_samtools' {
     path genome from params.genome 
  
   output: 
-    path "${genome}.fai" into genome_index_ch  
+    path "${genome}.fai" into genome_index_ch
+    path "${genome}.altnames" into alt_names_ch
   
   script:
   """
   samtools faidx ${genome}
+
+  cut -f 1 ${genome}.fai > a.txt
+
+  sed 's/^chr\\([0-9XY]\\+\\)\$/\\1/g' a.txt > b.txt
+
+  paste a.txt b.txt > ${genome}.altnames
   """
 }
 
@@ -84,12 +91,13 @@ process '1B_prepare_genome_picard' {
 
   input:
     path genome from params.genome
+    path alt from alt_names_ch
   output:
     path "${genome.baseName}.dict" into genome_dict_ch
 
   script:
   """
-  gatk CreateSequenceDictionary -R $genome -O ${genome.baseName}.dict
+  gatk CreateSequenceDictionary -R $genome -AN $alt -O ${genome.baseName}.dict
   """
 }
 
